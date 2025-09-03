@@ -71,3 +71,33 @@ login(get)
 
 
 
+
+<!-- post -->
+<!-- /orders -->
+<!-- response -->
+<?xml version="1.0"?>
+<response>
+    <status>success</status>
+    <message>Order placed successfully</message>
+    <order>
+        <id>3</id>
+        <client_id>1</client_id>
+        <product>Example Product</product>
+        <quantity>2</quantity>
+        <status>pending</status>
+        <address>123 Street, City</address>
+        <route_id>5</route_id>
+        <created_at>2025-09-03T21:17:51.543955</created_at>
+    </order>
+</response>
+
+
+<!-- request -->
+<order>
+  <product>Example Product</product>
+  <quantity>2</quantity>
+  <address>123 Street, City</address>
+  <route_id>5</route_id>
+</order>
+
+

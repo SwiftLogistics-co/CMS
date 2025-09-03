@@ -6,7 +6,7 @@ const xmlparser = require("express-xml-bodyparser");
 const router = express.Router();
 
 // --------------------- CREATE ORDER ---------------------
-router.post("/", xmlparser({ explicitArray: true }), async (req, res) => {
+router.post("/", async (req, res) => {
   if (!req.session.user) {
     const xml = builder.create("response")
       .ele("status", "fail").up()
@@ -14,7 +14,6 @@ router.post("/", xmlparser({ explicitArray: true }), async (req, res) => {
     return res.type("application/xml").status(401).send(xml);
   }
 
-  // Extract from XML
   const product = req.body.order?.product?.[0];
   const quantity = req.body.order?.quantity?.[0];
   const address = req.body.order?.address?.[0];
@@ -71,6 +70,7 @@ router.post("/", xmlparser({ explicitArray: true }), async (req, res) => {
     return res.type("application/xml").status(500).send(xml);
   }
 });
+
 
 // --------------------- GET USER ORDERS ---------------------
 router.get("/", async (req, res) => {
