@@ -8,21 +8,23 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 
-// Use XML parser middleware
+
 app.use(xmlparser({
   explicitArray: true,
 }));
 
 
-// Setup session
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "supersecretkey",  
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-  })
-);
+app.use(session({
+  name: "cms.sid", // must match what you clear on logout
+  secret: "your-secret-key",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true
+  }
+}));
+
 
 // Routes
 app.use('/auth', authRoutes);
@@ -35,6 +37,6 @@ app.get("/", (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(PORT,"0.0.0.0", () => {
+  console.log(`Server running at http://0.0.0.0:${PORT}`);
 });
