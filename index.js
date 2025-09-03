@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const bodyParser = require("body-parser");  // ✅ Add this
 require("dotenv").config();
 
 
@@ -10,7 +11,8 @@ const authRoutes = require("./routes/auth");
 
 
 const app = express();
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 //Setup session
 app.use(

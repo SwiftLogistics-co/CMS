@@ -24,6 +24,7 @@ CREATE TABLE routes (
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     client_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    address TEXT,
     route_id INT REFERENCES routes(id) ON DELETE SET NULL,
     product VARCHAR(200) NOT NULL,
     quantity INT NOT NULL,
