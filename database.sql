@@ -3,7 +3,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    password_hash VARCHAR(200) NOT NULL,
+    password VARCHAR(200) NOT NULL,
     phone VARCHAR(20),
     address TEXT,
     role VARCHAR(20) CHECK (role IN ('client', 'driver')) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE orders (
 
 
 -- Insert 5 drivers
-INSERT INTO users (name, email, password_hash, phone, address, role)
+INSERT INTO users (name, email, password, phone, address, role)
 VALUES
 ('Driver One', 'driver1@swift.com', 'hashpass1', '0711111111', 'Colombo', 'driver'),
 ('Driver Two', 'driver2@swift.com', 'hashpass2', '0722222222', 'Kandy', 'driver'),
@@ -53,3 +53,29 @@ INSERT INTO routes (route_name, driver_id, start_location, end_location) VALUES
 ('Southern Highway Express', 3, 'Galle', 'Hambantota'),
 ('Eastern Province Delivery', 4, 'Trincomalee', 'Batticaloa'),
 ('Western Province Daily', 5, 'Negombo', 'Colombo');
+
+
+-- anonymous_enable=NO
+-- local_enable=YES
+-- write_enable=NO
+-- local_umask=077
+-- file_open_mode=0640
+-- xferlog_enable=YES
+-- listen=YES
+-- listen_port=21
+-- pam_service_name=vsftpd
+-- userlist_enable=YES
+-- tcp_wrappers=YES
+
+
+-- sudo openssl req -x509 -newkey rsa:2048 -keyout /etc/vsftpd/ssl/private/vsftpd.key -out /etc/vsftpd/ssl/certs/vsftpd.crt -nodes -days 365
+-- sudo chmod 640 /etc/vsftpd/ssl/private/vsftpd.key
+
+-- ssl_enable=YES
+-- rsa_cert_file=/etc/vsftpd/ssl/certs/vsftpd.crt
+-- rsa_private_key_file=/etc/vsftpd/ssl/private/vsftpd.key
+-- force_local_data_ssl=YES
+-- force_local_logins_ssl=YES
+-- ssl_tlsv1=YES
+-- ssl_ciphers=HIGH
+-- require_ssl_reuse=NO

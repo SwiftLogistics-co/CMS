@@ -1,28 +1,28 @@
 const express = require("express");
+const session = require("express-session");
 require("dotenv").config();
-const supabase = require("./supabaseClient");
+
+
+
+// const supabase = require("./supabaseClient");
 const ordersRouter = require('./routes/orders');
+const authRoutes = require("./routes/auth");
+
 
 const app = express();
 app.use(express.json());
 
-// // Example: Get all users from "profiles" table
-// app.get("/profiles", async (req, res) => {
-//   const { data, error } = await supabase.from("profiles").select("*");
+//Setup session
+app.use(
+  session({
+    secret: "supersecretkey",  // change this to something secure
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }  // true only if HTTPS
+  })
+);
 
-//   if (error) return res.status(500).json({ error: error.message });
-//   res.json(data);
-// });
-
-// // Example: Insert new row into "profiles"
-// app.post("/profiles", async (req, res) => {
-//   const { username, email } = req.body;
-//   const { data, error } = await supabase.from("profiles").insert([{ username, email }]);
-
-//   if (error) return res.status(500).json({ error: error.message });
-//   res.json(data);
-// });
-
+app.use('/auth', authRoutes);
 app.use('/orders', ordersRouter);
 
 app.get("/", async (req, res) => {
