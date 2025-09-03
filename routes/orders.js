@@ -1,11 +1,12 @@
 const express = require("express");
 const supabase = require("../supabaseClient");
 const builder = require("xmlbuilder");
+const xmlparser = require("express-xml-bodyparser");
 
 const router = express.Router();
 
-// Create new order
-router.post("/", async (req, res) => {
+// --------------------- CREATE ORDER ---------------------
+router.post("/", xmlparser({ explicitArray: true }), async (req, res) => {
   if (!req.session.user) {
     const xml = builder.create("response")
       .ele("status", "fail").up()
@@ -13,7 +14,11 @@ router.post("/", async (req, res) => {
     return res.type("application/xml").status(401).send(xml);
   }
 
-  const { product, quantity, address, route_id } = req.body;
+  // Extract from XML
+  const product = req.body.order?.product?.[0];
+  const quantity = req.body.order?.quantity?.[0];
+  const address = req.body.order?.address?.[0];
+  const route_id = req.body.order?.route_id?.[0];
   const client_id = req.session.user.id;
 
   if (!product || !quantity) {
@@ -26,16 +31,14 @@ router.post("/", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("orders")
-      .insert([
-        {
-          client_id,
-          address,
-          route_id: route_id || null,
-          product,
-          quantity,
-          status: "pending"
-        }
-      ])
+      .insert([{
+        client_id,
+        address,
+        route_id: route_id || null,
+        product,
+        quantity,
+        status: "pending"
+      }])
       .select()
       .single();
 
@@ -55,6 +58,8 @@ router.post("/", async (req, res) => {
         .ele("product", data.product).up()
         .ele("quantity", data.quantity).up()
         .ele("status", data.status).up()
+        .ele("address", data.address || "").up()
+        .ele("route_id", data.route_id || "").up()
         .ele("created_at", data.created_at).up()
       .end({ pretty: true });
 
@@ -67,7 +72,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Get all orders for logged-in user
+// --------------------- GET USER ORDERS ---------------------
 router.get("/", async (req, res) => {
   if (!req.session.user) {
     const xml = builder.create("response")
