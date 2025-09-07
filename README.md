@@ -43,7 +43,7 @@ npm install jsonwebtoken
         <id>1</id>
         <email>driver1@swift.com</email>
     </user>
-    <token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkcml2ZXIxQHN3aWZ0LmNvbSIsImlhdCI6MTc1NzIyNjg5OCwiZXhwIjoxNzU3MjMwNDk4fQ.Hwum1J25QGTaufQw1gbjCAWzrdUYyg9oHJP6i4ky5n0</token>
+    <sessionToken>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkcml2ZXIxQHN3aWZ0LmNvbSIsImlhdCI6MTc1NzIyNjg5OCwiZXhwIjoxNzU3MjMwNDk4fQ.Hwum1J25QGTaufQw1gbjCAWzrdUYyg9oHJP6i4ky5n0</sessionToken>
 </response>
 ```
 
@@ -135,6 +135,10 @@ fetch("http://localhost:3000/auth/login", {
     </orders>
 </response>
 
+```
+
+### place order
+``` xml
 <?xml version="1.0"?>
 <response>
     <status>success</status>
