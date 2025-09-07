@@ -1,29 +1,23 @@
 const express = require("express");
 const supabase = require("../supabaseClient");
 const builder = require("xmlbuilder");
-const xmlparser = require("express-xml-bodyparser");
+const { authenticateToken } = require("./auth"); // JWT middleware
 
 const router = express.Router();
 
 // --------------------- CREATE ORDER ---------------------
-router.post("/", async (req, res) => {
-  if (!req.session.user) {
-    const xml = builder.create("response")
-      .ele("status", "fail").up()
-      .ele("message", "Not logged in").end({ pretty: true });
-    return res.type("application/xml").status(401).send(xml);
-  }
-
+router.post("/", authenticateToken, async (req, res) => {
   const product = req.body.order?.product?.[0];
   const quantity = req.body.order?.quantity?.[0];
   const address = req.body.order?.address?.[0];
   const route_id = req.body.order?.route_id?.[0];
-  const client_id = req.session.user.id;
+  const client_id = req.user.id; // from JWT
 
   if (!product || !quantity) {
     const xml = builder.create("response")
       .ele("status", "error").up()
-      .ele("message", "Product and quantity are required").end({ pretty: true });
+      .ele("message", "Product and quantity are required")
+      .end({ pretty: true });
     return res.type("application/xml").status(400).send(xml);
   }
 
@@ -44,7 +38,8 @@ router.post("/", async (req, res) => {
     if (error) {
       const xml = builder.create("response")
         .ele("status", "fail").up()
-        .ele("message", error.message).end({ pretty: true });
+        .ele("message", error.message)
+        .end({ pretty: true });
       return res.type("application/xml").status(500).send(xml);
     }
 
@@ -63,6 +58,7 @@ router.post("/", async (req, res) => {
       .end({ pretty: true });
 
     return res.type("application/xml").status(201).send(xml);
+
   } catch (err) {
     const xml = builder.create("response")
       .ele("status", "error").up()
@@ -71,19 +67,11 @@ router.post("/", async (req, res) => {
   }
 });
 
-
 // --------------------- GET USER ORDERS ---------------------
-router.get("/", async (req, res) => {
-  if (!req.session.user) {
-    const xml = builder.create("response")
-      .ele("status", "fail").up()
-      .ele("message", "Not logged in").end({ pretty: true });
-    return res.type("application/xml").status(401).send(xml);
-  }
+router.get("/", authenticateToken, async (req, res) => {
+  const userId = req.user.id; // from JWT
 
   try {
-    const userId = req.session.user.id;
-
     const { data, error } = await supabase
       .from("orders")
       .select("*")
@@ -93,7 +81,8 @@ router.get("/", async (req, res) => {
     if (error) {
       const xml = builder.create("response")
         .ele("status", "error").up()
-        .ele("message", error.message).end({ pretty: true });
+        .ele("message", error.message)
+        .end({ pretty: true });
       return res.type("application/xml").status(500).send(xml);
     }
 
@@ -113,6 +102,7 @@ router.get("/", async (req, res) => {
     });
 
     return res.type("application/xml").status(200).send(xml.end({ pretty: true }));
+
   } catch (err) {
     const xml = builder.create("response")
       .ele("status", "error").up()

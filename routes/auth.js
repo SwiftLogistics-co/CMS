@@ -1,7 +1,10 @@
 const express = require("express");
 const supabase = require("../supabaseClient");
 const builder = require("xmlbuilder");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 // --------------------- LOGIN (POST) ---------------------
 router.post("/login", async (req, res) => {
@@ -40,35 +43,24 @@ router.post("/login", async (req, res) => {
       return res.type("application/xml").status(401).send(xml);
     }
 
-    // Save session data
-    req.session.user = { 
-      id: data.id, 
-      email: data.email,
-      loggedInAt: new Date().toISOString()
-    };
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: data.id, email: data.email },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
-    // Save session explicitly and then send response
-    req.session.save((err) => {
-      if (err) {
-        console.error("Session save error:", err);
-        const xml = builder.create("response")
-          .ele("status", "error").up()
-          .ele("message", "Server error during session creation")
-          .end({ pretty: true });
-        return res.type("application/xml").status(500).send(xml);
-      }
+    const xml = builder.create("response")
+      .ele("status", "success").up()
+      .ele("message", "Login successful").up()
+      .ele("user")
+        .ele("id", data.id).up()
+        .ele("email", data.email).up()
+      .up()
+      .ele("token", token)
+      .end({ pretty: true });
 
-      const xml = builder.create("response")
-        .ele("status", "success").up()
-        .ele("message", "Login successful").up()
-        .ele("user")
-          .ele("id", data.id).up()
-          .ele("email", data.email).up()
-        .ele("sessionToken", req.sessionID).up()
-        .end({ pretty: true });
-
-      return res.type("application/xml").status(200).send(xml);
-    });
+    return res.type("application/xml").status(200).send(xml);
 
   } catch (err) {
     console.error("Login error:", err);
@@ -80,57 +72,44 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// --------------------- CHECK LOGIN STATUS (GET) ---------------------
-router.get("/login", (req, res) => {
-  if (!req.session.user) {
+// --------------------- JWT Authentication Middleware ---------------------
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
     const xml = builder.create("response")
       .ele("status", "fail").up()
-      .ele("message", "Not logged in")
+      .ele("message", "Missing Bearer token")
       .end({ pretty: true });
     return res.type("application/xml").status(401).send(xml);
   }
 
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      const xml = builder.create("response")
+        .ele("status", "fail").up()
+        .ele("message", "Invalid or expired token")
+        .end({ pretty: true });
+      return res.type("application/xml").status(403).send(xml);
+    }
+    req.user = user; // attach user info to request
+    next();
+  });
+}
+
+// --------------------- CHECK LOGIN STATUS (GET) ---------------------
+router.get("/login", authenticateToken, (req, res) => {
   const xml = builder.create("response")
     .ele("status", "success").up()
     .ele("message", "User profile").up()
     .ele("user")
-      .ele("id", req.session.user.id).up()
-      .ele("email", req.session.user.email).up()
-      .ele("loggedInAt", req.session.user.loggedInAt).up()
+      .ele("id", req.user.id).up()
+      .ele("email", req.user.email).up()
     .end({ pretty: true });
 
   return res.type("application/xml").status(200).send(xml);
 });
 
-// --------------------- LOGOUT ---------------------
-router.post("/logout", (req, res) => {
-  if (!req.session.user) {
-    const xml = builder.create("response")
-      .ele("status", "fail").up()
-      .ele("message", "No active session")
-      .end({ pretty: true });
-    return res.type("application/xml").status(400).send(xml);
-  }
-
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Logout error:", err);
-      const xml = builder.create("response")
-        .ele("status", "error").up()
-        .ele("message", "Failed to log out")
-        .end({ pretty: true });
-      return res.type("application/xml").status(500).send(xml);
-    }
-
-    // Clear session cookie
-    res.clearCookie("cms.sid");
-    
-    const xml = builder.create("response")
-      .ele("status", "success").up()
-      .ele("message", "Logged out successfully")
-      .end({ pretty: true });
-    return res.type("application/xml").status(200).send(xml);
-  });
-});
-
 module.exports = router;
+module.exports.authenticateToken = authenticateToken; // export middleware for other routes
