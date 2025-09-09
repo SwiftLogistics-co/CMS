@@ -43,7 +43,7 @@ npm install jsonwebtoken
         <id>1</id>
         <email>driver1@swift.com</email>
     </user>
-    <token>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkcml2ZXIxQHN3aWZ0LmNvbSIsImlhdCI6MTc1NzIyNjg5OCwiZXhwIjoxNzU3MjMwNDk4fQ.Hwum1J25QGTaufQw1gbjCAWzrdUYyg9oHJP6i4ky5n0</token>
+    <sessionToken>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJkcml2ZXIxQHN3aWZ0LmNvbSIsImlhdCI6MTc1NzIyNjg5OCwiZXhwIjoxNzU3MjMwNDk4fQ.Hwum1J25QGTaufQw1gbjCAWzrdUYyg9oHJP6i4ky5n0</sessionToken>
 </response>
 ```
 
@@ -134,47 +134,11 @@ fetch("http://localhost:3000/auth/login", {
         </order>
     </orders>
 </response>
+
 ```
 
-**Frontend Example:**
-
-```javascript
-const token = localStorage.getItem("jwtToken");
-
-fetch("http://localhost:3000/orders", {
-  method: "GET",
-  headers: {
-    "Authorization": `Bearer ${token}`,
-    "Accept": "application/xml"
-  }
-})
-  .then(res => res.text())
-  .then(xmlString => {
-    console.log("Orders response:", xmlString);
-  })
-  .catch(err => console.error("Error fetching orders:", err));
-```
-
----
-
-### 4. Create Order (POST)
-
-**Endpoint:** `http://localhost:3000/orders`
-
-**Request XML:**
-
-```xml
-<order>
-  <product>Example Product</product>
-  <quantity>2</quantity>
-  <address>123 Street, City</address>
-  <route_id>5</route_id>
-</order>
-```
-
-**Response XML:**
-
-```xml
+### place order
+``` xml
 <?xml version="1.0"?>
 <response>
     <status>success</status>
@@ -190,12 +154,7 @@ fetch("http://localhost:3000/orders", {
         <created_at>2025-09-03T21:17:51.543955</created_at>
     </order>
 </response>
-```
 
-**Frontend Example:**
-
-```javascript
-const token = localStorage.getItem("jwtToken");
 
 const orderXML = `
 <order>

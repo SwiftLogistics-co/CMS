@@ -57,7 +57,7 @@ router.post("/login", async (req, res) => {
         .ele("id", data.id).up()
         .ele("email", data.email).up()
       .up()
-      .ele("token", token)
+      .ele("sessionToken", token)
       .end({ pretty: true });
 
     return res.type("application/xml").status(200).send(xml);

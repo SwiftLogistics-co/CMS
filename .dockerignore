@@ -1,0 +1,19 @@
+# Ignore node_modules directory
+node_modules
+
+# Ignore log files
+*.log
+
+# Ignore environment variable files
+.env
+
+# Ignore Dockerfile and docker-compose.yml for local development
+Dockerfile
+docker-compose.yml
+
+# Ignore any other files that are not necessary for the application
+*.md
+*.json
+*.lock
+src/**/*.test.js
+src/**/*.spec.js
