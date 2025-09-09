@@ -111,4 +111,96 @@ router.get("/", authenticateToken, async (req, res) => {
   }
 });
 
+
+// POST /orders
+router.post("/orders", authenticateToken, async (req, res) => {
+  try {
+    console.log("Incoming XML body:", JSON.stringify(req.body, null, 2));
+
+    // XML parser wraps values in arrays, so extract correctly
+    const driver_id_raw = req.body?.request?.driver_id?.[0];
+    const status = req.body?.request?.status?.[0];
+
+    if (!driver_id_raw) {
+      const xml = builder
+        .create("response")
+        .ele("error", "driver_id is required")
+        .end({ pretty: true });
+      return res.type("application/xml").status(400).send(xml);
+    }
+
+    // Convert driver_id to number (important for Supabase query)
+    const driver_id = parseInt(driver_id_raw, 10);
+
+    // Step 1: Get route_id for this driver
+    const { data: driverData, error: driverError } = await supabase
+      .from("routes")
+      .select("id")
+      .eq("driver_id", driver_id)
+      .maybeSingle(); // safer than single()
+
+    console.log("Driver query result:", driverData, driverError);
+
+    if (driverError || !driverData) {
+      const xml = builder
+        .create("response")
+        .ele("error", "Driver not found")
+        .end({ pretty: true });
+      return res.type("application/xml").status(404).send(xml);
+    }
+
+    const routeId = driverData.id;
+
+    // Step 2: Get orders for this route
+    let query = supabase.from("orders").select("*").eq("route_id", routeId);
+
+    if (status) {
+      query = query.eq("status", status);
+    }
+
+    const { data: ordersData, error: ordersError } = await query;
+
+    console.log("Orders query result:", ordersData, ordersError);
+
+    if (ordersError) {
+      const xml = builder
+        .create("response")
+        .ele("error", "Database error")
+        .end({ pretty: true });
+      return res.type("application/xml").status(500).send(xml);
+    }
+
+    // Step 3: Build XML response
+    const xml = builder.create("response");
+    xml.ele("driver_id", driver_id);
+    xml.ele("route_id", routeId);
+    xml.ele("status", status || "ALL");
+
+    const ordersXml = xml.ele("orders");
+
+    if (!ordersData || ordersData.length === 0) {
+      ordersXml.ele("message", "No orders found");
+    } else {
+      ordersData.forEach((order) => {
+        const orderNode = ordersXml.ele("order");
+        Object.keys(order).forEach((key) => {
+          orderNode.ele(key, order[key] !== null ? String(order[key]) : "");
+        });
+      });
+    }
+
+    return res.type("application/xml").send(xml.end({ pretty: true }));
+
+  } catch (err) {
+    console.error("Unexpected server error:", err);
+    const xml = builder
+      .create("response")
+      .ele("error", "Unexpected server error")
+      .end({ pretty: true });
+    return res.type("application/xml").status(500).send(xml);
+  }
+});
+
+
+
 module.exports = router;

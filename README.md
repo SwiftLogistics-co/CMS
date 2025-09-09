@@ -221,4 +221,44 @@ fetch("http://localhost:3000/orders", {
 
 ---
 
+
+
+
+### 4. Get Orders Driver (POST)
+
+**Endpoint:** `http://localhost:3000/orders/orders`
+
+**Request XML:**
+
+```xml
+<request>
+  <driver_id>2</driver_id>
+  <status>pending</status>
+</request>
+```
+
+**Response XML:**
+
+```xml
+<?xml version="1.0"?>
+<response>
+    <driver_id>2</driver_id>
+    <route_id>2</route_id>
+    <status>pending</status>
+    <orders>
+        <order>
+            <id>11</id>
+            <client_id>1</client_id>
+            <route_id>2</route_id>
+            <product>Example Product</product>
+            <quantity>2</quantity>
+            <status>pending</status>
+            <created_at>2025-09-09T07:18:11.251088</created_at>
+            <address>123 Street, City</address>
+        </order>
+    </orders>
+</response>
+```
+
+
 **End of Documentation**
