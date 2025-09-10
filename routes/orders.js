@@ -7,10 +7,16 @@ const router = express.Router();
 
 // --------------------- CREATE ORDER ---------------------
 router.post("/createOrder", authenticateToken, async (req, res) => {
+  // Handle XML input - with explicitArray: true, all values are in arrays
   const product = req.body.order?.product?.[0];
-  const quantity = req.body.order?.quantity?.[0];
+  const quantity = parseInt(req.body.order?.quantity?.[0]);
   const address = req.body.order?.address?.[0];
-  const route_id = req.body.order?.route_id?.[0];
+  const route_id = req.body.order?.route_id?.[0] ? parseInt(req.body.order.route_id[0]) : null;
+  const coordinates = req.body.order?.coordinates?.[0] ? 
+    [
+      parseFloat(req.body.order.coordinates[0].lat[0]),
+      parseFloat(req.body.order.coordinates[0].lng[0])
+    ] : null;
   const client_id = req.user.id; // from JWT
 
   if (!product || !quantity) {
@@ -27,6 +33,7 @@ router.post("/createOrder", authenticateToken, async (req, res) => {
       .insert([{
         client_id,
         address,
+        coordinate: coordinates || null,
         route_id: route_id || null,
         product,
         quantity,
@@ -53,6 +60,7 @@ router.post("/createOrder", authenticateToken, async (req, res) => {
         .ele("quantity", data.quantity).up()
         .ele("status", data.status).up()
         .ele("address", data.address || "").up()
+        .ele("coordinate", data.coordinate ? JSON.stringify(data.coordinate) : "").up()
         .ele("route_id", data.route_id || "").up()
         .ele("created_at", data.created_at).up()
       .end({ pretty: true });
@@ -113,10 +121,10 @@ router.get("/getByCustomer", authenticateToken, async (req, res) => {
 
 
 
-// POST /getByDriver/:driver_id?status=pending
-router.get("/getByDriver/:driver_id", authenticateToken, async (req, res) => {
+// get /getByDriver?driver_id=2&status=pending
+router.get("/getByDriver", authenticateToken, async (req, res) => {
   try {
-    const driver_id_raw = req.params.driver_id;
+    const driver_id_raw = req.query.driver_id;
     const status = req.query.status || undefined;
 
     if (!driver_id_raw) {

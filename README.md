@@ -137,34 +137,65 @@ fetch("http://localhost:3000/auth/login", {
 
 ```
 
-### place order
-``` xml
+### 4. Create Order (POST)
+
+**Endpoint:** `http://localhost:3000/orders/createOrder`
+
+**Request XML:**
+
+```xml
+<order>
+  <product>blue berry</product>
+  <quantity>2</quantity>
+  <address>123 Main Street, Colombo</address>
+  <route_id>1</route_id>
+  <coordinates>
+    <lat>6.9271</lat>
+    <lng>79.8612</lng>
+  </coordinates>
+</order>
+```
+
+**Response XML:**
+
+```xml
 <?xml version="1.0"?>
 <response>
     <status>success</status>
     <message>Order placed successfully</message>
     <order>
-        <id>3</id>
+        <id>17</id>
         <client_id>1</client_id>
-        <product>Example Product</product>
+        <product>blue berry</product>
         <quantity>2</quantity>
         <status>pending</status>
-        <address>123 Street, City</address>
-        <route_id>5</route_id>
-        <created_at>2025-09-03T21:17:51.543955</created_at>
+        <address>123 Main Street, Colombo</address>
+        <coordinate>[6.9271,79.8612]</coordinate>
+        <route_id>1</route_id>
+        <created_at>2025-09-10T19:33:37.929696</created_at>
     </order>
 </response>
+```
 
+**Frontend Example:**
 
+```javascript
 const orderXML = `
 <order>
-  <product>Laptop</product>
+  <product>blue berry</product>
   <quantity>2</quantity>
-  <address>123 Main St</address>
+  <address>123 Main Street, Colombo</address>
+  <route_id>1</route_id>
+  <coordinates>
+    <lat>6.9271</lat>
+    <lng>79.8612</lng>
+  </coordinates>
 </order>
 `;
 
-fetch("http://localhost:3000/orders", {
+const token = localStorage.getItem("jwtToken");
+
+fetch("http://localhost:3000/orders/createOrder", {
   method: "POST",
   headers: {
     "Authorization": `Bearer ${token}`,
@@ -180,10 +211,7 @@ fetch("http://localhost:3000/orders", {
 
 ---
 
-
-
-
-### 4. Get Orders Driver (POST)
+### 5. Get Orders Driver (POST)
 
 **Endpoint:** `http://localhost:3000/orders/orders`
 
@@ -235,6 +263,6 @@ POST /auth/login - User authentication
 GET /auth/login - Get user profile (requires JWT)
 POST /orders/createOrder - Create new order (requires JWT)
 GET /orders/getByCustomer - Get user's orders (requires JWT)
-POST /orders/getByDriver/:driver_id?status="pending" - Get orders by driver
+GET /orders/getByDriver/:driver_id?status="pending" - Get orders by driver
 GET /routes/routes - Get all routes
 GET /orders/mock/driver/routes - Mock orders endpoint
