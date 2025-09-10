@@ -1,5 +1,6 @@
 const express = require("express");
 const xmlparser = require('express-xml-bodyparser');
+const cors = require('cors'); // Added CORS
 require("dotenv").config();
 
 const ordersRouter = require('./routes/orders');
@@ -8,6 +9,7 @@ const routesRoutes = require("./routes/routes");
 
 const app = express();
 
+app.use(cors()); // Allow all CORS
 // XML body parser
 app.use(xmlparser({ explicitArray: true }));
 
