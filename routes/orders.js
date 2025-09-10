@@ -114,7 +114,7 @@ router.get("/getByCustomer", authenticateToken, async (req, res) => {
 
 
 // POST /getByDriver/:driver_id?status=pending
-router.post("/getByDriver/:driver_id", authenticateToken, async (req, res) => {
+router.get("/getByDriver/:driver_id", authenticateToken, async (req, res) => {
   try {
     const driver_id_raw = req.params.driver_id;
     const status = req.query.status || undefined;
