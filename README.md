@@ -226,3 +226,15 @@ fetch("http://localhost:3000/orders", {
 
 
 **End of Documentation**
+Health check:
+
+Visit http://localhost:3000 in your browser
+API endpoints available:
+
+POST /auth/login - User authentication
+GET /auth/login - Get user profile (requires JWT)
+POST /orders/createOrder - Create new order (requires JWT)
+GET /orders/getByCustomer - Get user's orders (requires JWT)
+POST /orders/getByDriver/:driver_id?status="pending" - Get orders by driver
+GET /routes/routes - Get all routes
+GET /orders/mock/driver/routes - Mock orders endpoint
