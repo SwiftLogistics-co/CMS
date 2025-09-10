@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:20
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -7,10 +7,12 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm i
 
 # Copy the rest of the application files
 COPY . .
+
+COPY .env .env
 
 # Expose the port the app runs on
 EXPOSE 3000
