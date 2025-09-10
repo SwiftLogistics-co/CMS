@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const ordersRouter = require('./routes/orders');
 const authRoutes = require("./routes/auth");
+const routesRoutes = require("./routes/routes");
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(xmlparser({ explicitArray: true }));
 // Routes
 app.use('/auth', authRoutes);
 app.use('/orders', ordersRouter);
+app.use("/routes", routesRoutes);
 
 // Test route
 app.get("/", (req, res) => {

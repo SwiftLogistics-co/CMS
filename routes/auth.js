@@ -56,6 +56,9 @@ router.post("/login", async (req, res) => {
       .ele("user")
         .ele("id", data.id).up()
         .ele("email", data.email).up()
+        .ele("name", data.name || "").up()
+        .ele("role", data.role || "").up()
+
       .up()
       .ele("sessionToken", token)
       .end({ pretty: true });

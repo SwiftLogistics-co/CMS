@@ -214,6 +214,11 @@ fetch("http://localhost:3000/orders", {
             <status>pending</status>
             <created_at>2025-09-09T07:18:11.251088</created_at>
             <address>123 Street, City</address>
+            <coordinate>
+              <lat>6.9271</lat>
+              <lng>79.8612</lng>
+            </coordinate>
+
         </order>
     </orders>
 </response>
