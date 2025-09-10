@@ -202,5 +202,93 @@ router.post("/orders", authenticateToken, async (req, res) => {
 });
 
 
+// --------------------- MOCK Orders ENDPOINT for Route optimize ---------------------
+router.get("/mock/driver/routes", async (req, res) => {
+  try {
+    // Mock data array
+    const mockOrders = [
+      {
+        order_id: "3",
+        address: "789 Kandy Road, Kadawatha", 
+        coordinate: [7.0078, 79.9553]
+      },
+      {
+        order_id: "1",
+        address: "123 Main Street, Colombo 01",
+        coordinate: [6.9271, 79.8612]
+      },
+      {
+        order_id: "2", 
+        address: "456 Galle Road, Mount Lavinia",
+        coordinate: [6.8389, 79.8653]
+      },
+      {
+        order_id: "4",
+        address: "321 Negombo Road, Ja-Ela",
+        coordinate: [7.0744, 79.8947]
+      },
+      {
+        order_id: "5",
+        address: "654 High Level Road, Nugegoda",
+        coordinate: [6.8649, 79.8997]
+      }
+    ];
+
+    // Build XML response
+    const xml = builder.create("response");
+    xml.ele("status", "success");
+    
+    const ordersXml = xml.ele("orders");
+    
+    mockOrders.forEach((order) => {
+      const orderNode = ordersXml.ele("order");
+      orderNode.ele("order_id", order.order_id);
+      orderNode.ele("address", order.address);
+      
+      const coordinateNode = orderNode.ele("coordinate");
+      coordinateNode.ele("lat", order.coordinate[0]);
+      coordinateNode.ele("lng", order.coordinate[1]);
+    });
+
+    return res.type("application/xml").status(200).send(xml.end({ pretty: true }));
+
+  } catch (err) {
+    console.error("Mock endpoint error:", err);
+    const xml = builder
+      .create("response")
+      .ele("status", "error")
+      .up()
+      .ele("message", "Server error")
+      .end({ pretty: true });
+    return res.type("application/xml").status(500).send(xml);
+  }
+});
+
+// responce exmple
+/*
+<?xml version="1.0"?>
+<response>
+  <status>success</status>
+  <orders>
+    <order>
+      <order_id>1</order_id>
+      <address>123 Main Street, Colombo 01</address>
+      <coordinate>
+        <lat>6.9271</lat>
+        <lng>79.8612</lng>
+      </coordinate>
+    </order>
+    <order>
+      <order_id>2</order_id>
+      <address>456 Galle Road, Mount Lavinia</address>
+      <coordinate>
+        <lat>6.8389</lat>
+        <lng>79.8653</lng>
+      </coordinate>
+    </order>
+    <!-- ... more orders ... -->
+  </orders>
+</response>
+*/
 
 module.exports = router;
